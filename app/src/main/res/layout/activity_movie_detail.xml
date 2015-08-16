@@ -1,0 +1,64 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.example.handinatatanudjaja.popmoviesdemo.MovieDetailActivity">
+
+        <TextView
+            android:id="@+id/movietitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_dark"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:textSize="40dp"
+            android:textColor="@android:color/white"
+            android:text="Test"
+            />
+
+        <ImageView android:id="@+id/moviepic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/movietitle"
+            android:background="@android:color/holo_red_dark"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="5dp"
+            />
+
+        <TextView
+            android:id="@+id/moviereleasedate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movietitle"
+            android:layout_toRightOf="@+id/moviepic"
+            android:layout_marginLeft="15dp"
+            android:textSize="25dp"
+            android:text="2015-05-15"
+            />
+
+        <TextView
+            android:id="@+id/movievoteavg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/moviereleasedate"
+            android:layout_toRightOf="@+id/moviepic"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="15dp"
+            android:textSize="20dp"
+            android:text="10/10"
+            />
+        <TextView
+            android:id="@+id/movieoverview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="5dp"
+            android:layout_below="@id/moviepic"
+            android:text="overview"/>
+
+    </RelativeLayout>
+</ScrollView>
