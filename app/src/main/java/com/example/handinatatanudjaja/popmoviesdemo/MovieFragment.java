@@ -3,6 +3,7 @@ package com.example.handinatatanudjaja.popmoviesdemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -64,14 +65,26 @@ public class MovieFragment extends Fragment {
     public boolean onOptionsItemSelected (MenuItem item) {
 
         int id = item.getItemId();
-
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         if (id == R.id.action_popular_movies) {
-            new FetchImageTask().execute(SORT_MOST_POPULAR);
+            int selectedSortBy = SORT_MOST_POPULAR;
+            new FetchImageTask().execute(selectedSortBy);
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
+            editor.commit();
+
             return true;
         }
         else
         if (id == R.id.action_highest_rated_movies) {
-            new FetchImageTask().execute(SORT_HIGHEST_RATED);
+            int selectedSortBy = SORT_HIGHEST_RATED;
+            new FetchImageTask().execute(selectedSortBy);
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
+            editor.commit();
+
             return true;
         }
 
@@ -108,7 +121,11 @@ public class MovieFragment extends Fragment {
             }
         });
 
-        new FetchImageTask().execute(SORT_MOST_POPULAR);
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        int sortByDefaultValue = SORT_MOST_POPULAR;
+        int sortByValue = sharedPref.getInt(getString(R.string.preference_file_key), sortByDefaultValue);
+
+        new FetchImageTask().execute(sortByValue);
 
         return rootView;
     }
