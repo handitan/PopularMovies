@@ -4,6 +4,8 @@ package com.example.handinatatanudjaja.popmoviesdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -57,6 +60,12 @@ public class MovieFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        Log.i(LOG_TAG, ">>>>>>>>> Calling onStart()");
+    }
+
+    @Override
     public void onCreateOptionsMenu (Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_fragment_movie, menu);
     }
@@ -65,26 +74,27 @@ public class MovieFragment extends Fragment {
     public boolean onOptionsItemSelected (MenuItem item) {
 
         int id = item.getItemId();
+        int selectedSortBy = -1;
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+
         if (id == R.id.action_popular_movies) {
-            int selectedSortBy = SORT_MOST_POPULAR;
-            new FetchImageTask().execute(selectedSortBy);
-
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
-            editor.commit();
-
-            return true;
+            selectedSortBy = SORT_MOST_POPULAR;
+            //new FetchImageTask().execute(selectedSortBy);
         }
         else
         if (id == R.id.action_highest_rated_movies) {
-            int selectedSortBy = SORT_HIGHEST_RATED;
-            new FetchImageTask().execute(selectedSortBy);
+            selectedSortBy = SORT_HIGHEST_RATED;
+            //new FetchImageTask().execute(selectedSortBy);
+        }
+
+        if (selectedSortBy != -1 && canCallFetchImageTask(selectedSortBy)) {
+
+            Log.i(LOG_TAG, "Option item selected sort by " + selectedSortBy);
 
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
             editor.commit();
-
             return true;
         }
 
@@ -94,6 +104,9 @@ public class MovieFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Log.i(LOG_TAG,"========== Calling onCreateView()");
+
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
         GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movie);
@@ -125,9 +138,21 @@ public class MovieFragment extends Fragment {
         int sortByDefaultValue = SORT_MOST_POPULAR;
         int sortByValue = sharedPref.getInt(getString(R.string.preference_file_key), sortByDefaultValue);
 
-        new FetchImageTask().execute(sortByValue);
+        canCallFetchImageTask(sortByValue);
 
         return rootView;
+    }
+
+    private boolean canCallFetchImageTask(int pSortByValue) {
+        if (isNetWorkAvailable()) {
+            new FetchImageTask().execute(pSortByValue);
+            return true;
+        }
+        else {
+            Toast.makeText(getActivity().getApplicationContext(), "Unable to retrieve movies due to no network connectivity.", Toast.LENGTH_SHORT).show();
+        }
+
+        return false;
     }
 
     private class FetchImageTask extends AsyncTask<Integer, Void, JSONObject[]> {
@@ -169,7 +194,7 @@ public class MovieFragment extends Fragment {
             String sortByValue = null;
 
             //TODO: Please input the apikey here
-            String apiKey = "???";
+            String apiKey = "";
 
             if (params[0] == SORT_MOST_POPULAR) {
                 sortByValue = "popularity.desc";
@@ -269,6 +294,11 @@ public class MovieFragment extends Fragment {
         }
     }
 
+    private boolean isNetWorkAvailable() {
+        ConnectivityManager myConnectivityMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = myConnectivityMgr.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     private class ImageAdapter extends BaseAdapter {
         final String LOG_TAG = ImageAdapter.class.getSimpleName();
