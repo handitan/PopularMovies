@@ -48,7 +48,8 @@ public class MovieFragment extends Fragment {
     private final String MOVIE_PARCEL = "movieItemParcel";
     private final int SORT_MOST_POPULAR = 0;
     private final int SORT_HIGHEST_RATED = 1;
-    final String LOG_TAG = MovieFragment.class.getSimpleName();
+    private final String LOG_TAG = MovieFragment.class.getSimpleName();
+    private final String INACTIVE_NETWORK_WARNING = "Unable to retrieve movies due to no network connectivity.";
 
     public MovieFragment() {
         // Required empty public constructor
@@ -90,14 +91,19 @@ public class MovieFragment extends Fragment {
             //new FetchImageTask().execute(selectedSortBy);
         }
 
-        if (selectedSortBy != -1 && canCallFetchImageTask(selectedSortBy,null)) {
+        if (selectedSortBy != -1) {
 
             Log.i(LOG_TAG, "Option item selected sort by " + selectedSortBy);
-
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
-            editor.commit();
-            return true;
+            if (isNetWorkAvailable()) {
+                new FetchImageTask().execute(selectedSortBy);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(getString(R.string.preference_file_key), selectedSortBy);
+                editor.commit();
+                return true;
+            }
+            else {
+                Toast.makeText(getActivity().getApplicationContext(), INACTIVE_NETWORK_WARNING, Toast.LENGTH_SHORT).show();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -141,7 +147,23 @@ public class MovieFragment extends Fragment {
         int sortByDefaultValue = SORT_MOST_POPULAR;
         int sortByValue = sharedPref.getInt(getString(R.string.preference_file_key), sortByDefaultValue);
 
-        canCallFetchImageTask(sortByValue,savedInstanceState);
+        if (savedInstanceState != null) {
+            ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
+            listOfThumbnails.clear();
+            posterImagesAdapter.setmMovieList(null);
+
+            ArrayList<MovieItem> moviesParcel = savedInstanceState.getParcelableArrayList(MOVIE_PARCEL);
+            posterImagesAdapter.setmMovieList(moviesParcel);
+            posterImagesAdapter.notifyDataSetChanged();
+        }
+        else {
+            if (isNetWorkAvailable()) {
+                new FetchImageTask().execute(sortByValue);
+            }
+            else {
+                Toast.makeText(getActivity().getApplicationContext(), INACTIVE_NETWORK_WARNING, Toast.LENGTH_SHORT).show();
+            }
+        }
 
         return rootView;
     }
@@ -155,7 +177,7 @@ public class MovieFragment extends Fragment {
 
     //Privates
 
-    private boolean canCallFetchImageTask(int pSortByValue,Bundle pSavedInstanceState) {
+    /*private boolean canCallFetchImageTask(int pSortByValue,Bundle pSavedInstanceState) {
         if (isNetWorkAvailable()) {
             if (pSavedInstanceState != null) {
                 ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
@@ -176,7 +198,7 @@ public class MovieFragment extends Fragment {
         }
 
         return false;
-    }
+    }*/
 
     private class FetchImageTask extends AsyncTask<Integer, Void, MovieItem[]> {
 
