@@ -18,6 +18,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         String moviePosterUrl = intent.getStringExtra("bigposter");
 
@@ -51,8 +53,14 @@ public class MovieDetailActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        int homeId = android.R.id.home;
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+        else
+        if (id == android.R.id.home) {
+            onBackPressed();
             return true;
         }
 

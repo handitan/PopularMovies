@@ -45,6 +45,7 @@ public class MovieFragment extends Fragment {
 
     private ImageAdapter posterImagesAdapter;
 
+    private final String MOVIE_PARCEL = "movieItemParcel";
     private final int SORT_MOST_POPULAR = 0;
     private final int SORT_HIGHEST_RATED = 1;
     final String LOG_TAG = MovieFragment.class.getSimpleName();
@@ -57,6 +58,7 @@ public class MovieFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Log.i(LOG_TAG, ">>> Calling onCreate");
     }
 
     @Override
@@ -88,7 +90,7 @@ public class MovieFragment extends Fragment {
             //new FetchImageTask().execute(selectedSortBy);
         }
 
-        if (selectedSortBy != -1 && canCallFetchImageTask(selectedSortBy)) {
+        if (selectedSortBy != -1 && canCallFetchImageTask(selectedSortBy,null)) {
 
             Log.i(LOG_TAG, "Option item selected sort by " + selectedSortBy);
 
@@ -101,6 +103,7 @@ public class MovieFragment extends Fragment {
         return super.onOptionsItemSelected(item);
 
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -118,13 +121,13 @@ public class MovieFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    JSONObject movieObj = (JSONObject) posterImagesAdapter.getMovieDataAt(position);
+                    MovieItem movieObj = (MovieItem) posterImagesAdapter.getMovieDataAt(position);
                     Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class)
-                            .putExtra("title", movieObj.getString("title"))
-                            .putExtra("bigposter", movieObj.getString("bigposter"))
-                            .putExtra("releasedate", movieObj.getString("releasedate"))
-                            .putExtra("voteaverage", movieObj.getString("voteaverage"))
-                            .putExtra("overview", movieObj.getString("overview"));
+                            .putExtra("title", movieObj.getmTitle())
+                            .putExtra("bigposter", movieObj.getmBigPoster())
+                            .putExtra("releasedate", movieObj.getmReleaseDate())
+                            .putExtra("voteaverage", movieObj.getmVoteAverage())
+                            .putExtra("overview", movieObj.getmOverView());
                     startActivity(detailIntent);
                 }
                 catch (Exception e)
@@ -138,14 +141,34 @@ public class MovieFragment extends Fragment {
         int sortByDefaultValue = SORT_MOST_POPULAR;
         int sortByValue = sharedPref.getInt(getString(R.string.preference_file_key), sortByDefaultValue);
 
-        canCallFetchImageTask(sortByValue);
+        canCallFetchImageTask(sortByValue,savedInstanceState);
 
         return rootView;
     }
 
-    private boolean canCallFetchImageTask(int pSortByValue) {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(MOVIE_PARCEL, posterImagesAdapter.getmMovieList());
+    }
+
+    //Privates
+
+    private boolean canCallFetchImageTask(int pSortByValue,Bundle pSavedInstanceState) {
         if (isNetWorkAvailable()) {
-            new FetchImageTask().execute(pSortByValue);
+            if (pSavedInstanceState != null) {
+                ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
+                listOfThumbnails.clear();
+                posterImagesAdapter.setmMovieList(null);
+
+                ArrayList<MovieItem> moviesParcel = pSavedInstanceState.getParcelableArrayList(MOVIE_PARCEL);
+                posterImagesAdapter.setmMovieList(moviesParcel);
+                posterImagesAdapter.notifyDataSetChanged();
+            }
+            else {
+                new FetchImageTask().execute(pSortByValue);
+            }
             return true;
         }
         else {
@@ -155,28 +178,30 @@ public class MovieFragment extends Fragment {
         return false;
     }
 
-    private class FetchImageTask extends AsyncTask<Integer, Void, JSONObject[]> {
+    private class FetchImageTask extends AsyncTask<Integer, Void, MovieItem[]> {
 
         final String LOG_TAG = MovieFragment.class.getSimpleName();
 
-        private JSONObject[] getPosterThumbnailsDataFromJSON(String pMovieJsonStr) throws JSONException{
+        private MovieItem[] getPosterThumbnailsDataFromJSON(String pMovieJsonStr) throws JSONException{
 
             JSONObject jsonTemp = new JSONObject(pMovieJsonStr);
             JSONArray movieAry = jsonTemp.getJSONArray("results");
 
-            JSONObject[] photoStringAry = null;
+            MovieItem[] photoStringAry = null;
             if (movieAry != null && movieAry.length() > 0) {
-                photoStringAry = new JSONObject[movieAry.length()];
+                photoStringAry = new MovieItem[movieAry.length()];
+
                 for (int i = 0; i < movieAry.length(); ++i) {
                     JSONObject movie = movieAry.getJSONObject(i);
-                    JSONObject movieDetailObj = new JSONObject();
+                    MovieItem movieDetailObj = new MovieItem();
 
-                    movieDetailObj.put("title", movie.getString("title"));
-                    movieDetailObj.put("smallposter","http://image.tmdb.org/t/p/w185/" + movie.getString("poster_path"));
-                    movieDetailObj.put("bigposter","http://image.tmdb.org/t/p/w500/" + movie.getString("poster_path"));
-                    movieDetailObj.put("releasedate", movie.getString("release_date"));
-                    movieDetailObj.put("overview", movie.getString("overview"));
-                    movieDetailObj.put("voteaverage", movie.getString("vote_average"));
+                    movieDetailObj.setmTitle(movie.getString("title"));
+                    movieDetailObj.setmSmallPoster("http://image.tmdb.org/t/p/w185/" + movie.getString("poster_path"));
+                    movieDetailObj.setmBigPoster("http://image.tmdb.org/t/p/w500/" + movie.getString("poster_path"));
+                    movieDetailObj.setmReleaseDate(movie.getString("release_date"));
+                    movieDetailObj.setmOverView(movie.getString("overview"));
+                    movieDetailObj.setmVoteAverage(movie.getString("vote_average"));
+
                     photoStringAry[i] = movieDetailObj;
                 }
             }
@@ -184,7 +209,7 @@ public class MovieFragment extends Fragment {
         }
 
         @Override
-        protected JSONObject[] doInBackground(Integer... params) {
+        protected MovieItem[] doInBackground(Integer... params) {
 
             if (params.length == 0) {
                 return null;
@@ -268,7 +293,7 @@ public class MovieFragment extends Fragment {
                 }
             }
 
-            JSONObject[] photoStringAry = null;
+            MovieItem[] photoStringAry = null;
             try {
                 photoStringAry = getPosterThumbnailsDataFromJSON(moviesJsonStr);
             }
@@ -279,14 +304,14 @@ public class MovieFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(JSONObject[] pThumbnailsAry) {
+        protected void onPostExecute(MovieItem[] pThumbnailsAry) {
 
             if (pThumbnailsAry != null && pThumbnailsAry.length > 0) {
 
-                ArrayList<JSONObject> listOfThumbnails = posterImagesAdapter.getmMovieList();
+                ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
                 listOfThumbnails.clear();
 
-                for (JSONObject movieDetail : pThumbnailsAry) {
+                for (MovieItem movieDetail : pThumbnailsAry) {
                     listOfThumbnails.add(movieDetail);
                 }
                 posterImagesAdapter.notifyDataSetChanged();
@@ -304,7 +329,7 @@ public class MovieFragment extends Fragment {
         final String LOG_TAG = ImageAdapter.class.getSimpleName();
 
         private Context mContext;
-        private ArrayList<JSONObject> mMovieList = null;
+        private ArrayList<MovieItem> mMovieList = null;
 
         public ImageAdapter(Context c) {
             mContext = c;
@@ -326,7 +351,7 @@ public class MovieFragment extends Fragment {
             return 0;
         }
 
-        public JSONObject getMovieDataAt(int position) {
+        public MovieItem getMovieDataAt(int position) {
             if (mMovieList == null)
             {
                 return null;
@@ -334,19 +359,16 @@ public class MovieFragment extends Fragment {
             return mMovieList.get(position);
         }
 
-        public ArrayList<JSONObject> getmMovieList() {
+        public ArrayList<MovieItem> getmMovieList() {
             if (mMovieList == null) {
-                mMovieList = new ArrayList<JSONObject>();
+                mMovieList = new ArrayList<MovieItem>();
             }
             return mMovieList;
         }
 
-        /*public void setThumbsData(ArrayList<JSONObject> thumbsAryList) {
-            if (mMovieList != null) {
-                mMovieList.clear();
-            }
-            mMovieList = thumbsAryList;
-        }*/
+        public void setmMovieList(ArrayList<MovieItem> pMovieList) {
+            mMovieList = pMovieList;
+        }
 
         // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -365,8 +387,8 @@ public class MovieFragment extends Fragment {
                 }
 
                 try {
-                    JSONObject movieObj = mMovieList.get(position);
-                    Picasso.with(mContext).load(movieObj.getString("smallposter")).into(imageView);
+                    MovieItem movieObj = mMovieList.get(position);
+                    Picasso.with(mContext).load(movieObj.getmSmallPoster()).into(imageView);
                 }
                 catch (Exception e) {
                     Log.e(LOG_TAG, "Error ", e);
