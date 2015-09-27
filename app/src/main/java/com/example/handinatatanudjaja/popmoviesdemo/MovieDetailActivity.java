@@ -18,25 +18,28 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        String moviePosterUrl = intent.getStringExtra("bigposter");
 
-        TextView titleView = (TextView) findViewById(R.id.movietitle);
-        titleView.setText(intent.getStringExtra("title"));
+        if (intent != null) {
+            String moviePosterUrl = intent.getStringExtra("bigposter");
 
-        ImageView posterImageView = (ImageView) findViewById(R.id.moviepic);
-        Picasso.with(getApplicationContext()).load(moviePosterUrl).into(posterImageView);
+            TextView titleView = (TextView) findViewById(R.id.movietitle);
+            titleView.setText(intent.getStringExtra("title"));
 
-        TextView releaseDateView = (TextView) findViewById(R.id.moviereleasedate);
-        releaseDateView.setText(intent.getStringExtra("releasedate"));
+            ImageView posterImageView = (ImageView) findViewById(R.id.moviepic);
+            Picasso.with(getApplicationContext()).load(moviePosterUrl).into(posterImageView);
 
-        TextView voteavgView = (TextView) findViewById(R.id.movievoteavg);
-        voteavgView.setText(intent.getStringExtra("voteaverage").concat("/10.0"));
+            TextView releaseDateView = (TextView) findViewById(R.id.moviereleasedate);
+            releaseDateView.setText(intent.getStringExtra("releasedate"));
 
-        TextView overviewView = (TextView) findViewById(R.id.movieoverview);
-        overviewView.setText(intent.getStringExtra("overview"));
+            TextView voteavgView = (TextView) findViewById(R.id.movievoteavg);
+            voteavgView.setText(intent.getStringExtra("voteaverage").concat("/10.0"));
+
+            TextView overviewView = (TextView) findViewById(R.id.movieoverview);
+            overviewView.setText(intent.getStringExtra("overview"));
+        }
     }
 
     @Override

@@ -21,7 +21,12 @@
         </activity>
         <activity
             android:name=".MovieDetailActivity"
-            android:label="@string/title_activity_movie_detail" >
+            android:label="@string/title_activity_movie_detail"
+            android:parentActivityName=".MainActivity"> <!-- this is introduced starting API level 16 -->
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
     </application>
 
