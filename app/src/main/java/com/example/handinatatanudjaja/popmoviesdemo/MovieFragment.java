@@ -4,12 +4,16 @@ package com.example.handinatatanudjaja.popmoviesdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.content.CursorLoader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.handinatatanudjaja.popmoviesdemo.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -41,9 +46,13 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MovieFragment extends Fragment {
+public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    private static final int FAV_MOVIE_LOADER = 0;
 
     private ImageAdapter posterImagesAdapter;
+    private MovieFavoriteAdapter favImagesAdapter;
+    private GridView movieGridView;
 
     private final String MOVIE_PARCEL = "movieItemParcel";
     private final int SORT_MOST_POPULAR = 0;
@@ -80,15 +89,25 @@ public class MovieFragment extends Fragment {
         int selectedSortBy = -1;
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
-
         if (id == R.id.action_popular_movies) {
             selectedSortBy = SORT_MOST_POPULAR;
-            //new FetchImageTask().execute(selectedSortBy);
         }
         else
         if (id == R.id.action_highest_rated_movies) {
             selectedSortBy = SORT_HIGHEST_RATED;
-            //new FetchImageTask().execute(selectedSortBy);
+        }
+        else
+        if (id == R.id.action_favorite_movies) {
+            selectedSortBy = -1;
+            //TODO
+            //Gridview needs to switch to different adapter
+            //cursor adapter??
+            movieGridView.setAdapter(favImagesAdapter);
+            return super.onOptionsItemSelected(item);
+        }
+
+        if (movieGridView.getAdapter() != posterImagesAdapter) {
+            movieGridView.setAdapter(posterImagesAdapter);
         }
 
         if (selectedSortBy != -1) {
@@ -111,6 +130,12 @@ public class MovieFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FAV_MOVIE_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -118,8 +143,9 @@ public class MovieFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
-        GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movie);
+        movieGridView = (GridView) rootView.findViewById(R.id.gridview_movie);
 
+        favImagesAdapter = new MovieFavoriteAdapter(getActivity(), null, 0);
         posterImagesAdapter = new ImageAdapter(container.getContext());
         movieGridView.setAdapter(posterImagesAdapter);
 
@@ -173,6 +199,27 @@ public class MovieFragment extends Fragment {
         super.onSaveInstanceState(outState);
 
         outState.putParcelableArrayList(MOVIE_PARCEL, posterImagesAdapter.getmMovieList());
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new CursorLoader(getActivity(),
+                MovieContract.MovieFavoriteEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            favImagesAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+            favImagesAdapter.swapCursor(null);
     }
 
     //Privates
@@ -241,7 +288,7 @@ public class MovieFragment extends Fragment {
             String sortByValue = null;
 
             //TODO: Please input the apikey here
-            String apiKey = "";
+            String apiKey = "4023d68647cd21b2cfb5115acda7fe46";
 
             if (params[0] == SORT_MOST_POPULAR) {
                 sortByValue = "popularity.desc";
@@ -399,7 +446,7 @@ public class MovieFragment extends Fragment {
             if (mMovieList != null && mMovieList.size() > 0) {
                 if (convertView == null) {
                     imageView = new ImageView(mContext);
-                    imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, GridView.LayoutParams.MATCH_PARENT));
+                    imageView.setLayoutParams(new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, GridView.LayoutParams.MATCH_PARENT));
                     imageView.setAdjustViewBounds(true);
 
                     //If Using xml layout

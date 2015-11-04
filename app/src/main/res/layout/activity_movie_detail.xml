@@ -51,6 +51,24 @@
             android:textSize="20dp"
             android:text="10/10"
             />
+
+        <Button
+            android:id="@+id/moviemarkfavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movievoteavg"
+            android:layout_toRightOf="@id/moviepic"
+            android:text="Favorite"
+            />
+        <Button
+            android:id="@+id/moviefavoriteCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movievoteavg"
+            android:layout_toRightOf="@+id/moviemarkfavorite"
+            android:text="Mark Favorite?"
+            />
+
         <TextView
             android:id="@+id/movieoverview"
             android:layout_width="wrap_content"

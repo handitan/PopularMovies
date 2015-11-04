@@ -2,6 +2,7 @@ package com.example.handinatatanudjaja.popmoviesdemo;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.handinatatanudjaja.popmoviesdemo.data.MovieContract;
 import com.squareup.picasso.Picasso;
@@ -59,6 +61,18 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
             });
 
+
+            Button markFavoriteCheckBtn = (Button) findViewById(R.id.moviefavoriteCheck);
+            markFavoriteCheckBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Perform action click
+                    favoriteCheck();
+                }
+            });
+
+
+
         }
     }
 
@@ -90,10 +104,50 @@ public class MovieDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void favoriteCheck() {
+
+        String[] mProjection = {MovieContract.MovieFavoriteEntry.COLUMN_TITLE};
+
+        // Defines a string to contain the selection clause
+        String mSelectionClause = null;
+        mSelectionClause = MovieContract.MovieFavoriteEntry.COLUMN_TITLE + " = ?";
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {""};
+        mSelectionArgs[0] = intent.getStringExtra("title");
+
+        Cursor retCursor = getContentResolver().query(MovieContract.MovieFavoriteEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
+        if (retCursor.getCount() == 0) {
+            Toast.makeText(getApplicationContext(),"NO FAVORITE YET",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(),"ALREADY FAV LAAA",Toast.LENGTH_SHORT).show();
+        }
+    }
     //Look at FetchWeatherTask
     private void addMovieFavorite() {
 
         if (intent != null) {
+
+            String[] mProjection = {MovieContract.MovieFavoriteEntry.COLUMN_TITLE};
+
+            // Defines a string to contain the selection clause
+            String mSelectionClause = null;
+            mSelectionClause = MovieContract.MovieFavoriteEntry.COLUMN_TITLE + " = ?";
+
+            // Initializes an array to contain selection arguments
+            String[] mSelectionArgs = {""};
+            mSelectionArgs[0] = intent.getStringExtra("title");
+
+            Cursor retCursor = getContentResolver().query(MovieContract.MovieFavoriteEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
+            if (retCursor.getCount() == 0) {
+                Toast.makeText(getApplicationContext(),"Saving to favorite",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(getApplicationContext(),"It's already a favorite",Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             ContentValues movieValues = new ContentValues();
 
             Random rand = new Random();
