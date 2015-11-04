@@ -288,7 +288,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             String sortByValue = null;
 
             //TODO: Please input the apikey here
-            String apiKey = "4023d68647cd21b2cfb5115acda7fe46";
+            String apiKey = "";
 
             if (params[0] == SORT_MOST_POPULAR) {
                 sortByValue = "popularity.desc";
