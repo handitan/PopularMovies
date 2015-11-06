@@ -12,8 +12,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,7 +40,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 /**
@@ -153,13 +155,47 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    MovieItem movieObj = (MovieItem) posterImagesAdapter.getMovieDataAt(position);
+
+                    String movTitle = "";
+                    String movBigPoster = "";
+                    String movReleaseDate = "";
+                    String movVoteAvg = "";
+                    String movOverview = "";
+
+                    if(movieGridView.getAdapter() instanceof MovieFavoriteAdapter) {
+                        Cursor favMovieItem = (Cursor)favImagesAdapter.getItem(position);
+                        int colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_TITLE);
+                        movTitle = favMovieItem.getString(colIndex);
+                        colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_BIG_POSTER_PATH);
+                        movBigPoster = favMovieItem.getString(colIndex);
+                        colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_RELEASE_DATE);
+                        movReleaseDate = favMovieItem.getString(colIndex);
+
+                        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                        Date relDate = new Date(Long.parseLong(movReleaseDate));
+                        movReleaseDate = f.format(relDate);
+
+
+                        colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_VOTE_AVG);
+                        movVoteAvg = favMovieItem.getString(colIndex);
+                        colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_OVERVIEW);
+                        movOverview = favMovieItem.getString(colIndex);
+                    }
+                    else {
+                        MovieItem movieObj = (MovieItem) posterImagesAdapter.getMovieDataAt(position);
+                        movTitle = movieObj.getmTitle();
+                        movBigPoster = movieObj.getmBigPoster();
+                        movReleaseDate = movieObj.getmReleaseDate();
+                        movVoteAvg = movieObj.getmVoteAverage();
+                        movOverview = movieObj.getmOverView();
+                    }
+
                     Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class)
-                            .putExtra("title", movieObj.getmTitle())
-                            .putExtra("bigposter", movieObj.getmBigPoster())
-                            .putExtra("releasedate", movieObj.getmReleaseDate())
-                            .putExtra("voteaverage", movieObj.getmVoteAverage())
-                            .putExtra("overview", movieObj.getmOverView());
+                            .putExtra("title", movTitle)
+                            .putExtra("bigposter", movBigPoster)
+                            .putExtra("releasedate", movReleaseDate)
+                            .putExtra("voteaverage", movVoteAvg)
+                            .putExtra("overview", movOverview);
                     startActivity(detailIntent);
                 }
                 catch (Exception e)
