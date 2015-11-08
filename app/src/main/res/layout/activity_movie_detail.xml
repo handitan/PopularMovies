@@ -6,6 +6,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/mainMovieDetailLayout"
         tools:context="com.example.handinatatanudjaja.popmoviesdemo.MovieDetailActivity">
 
         <TextView
@@ -75,8 +76,28 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginLeft="5dp"
-            android:layout_below="@id/moviepic"
+            android:layout_below="@+id/moviepic"
             android:text="overview"/>
+
+        <LinearLayout
+            android:id = "@+id/movietrailers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movieoverview"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id = "@+id/moviereviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movietrailers"
+            android:orientation="vertical"
+            android:background="@android:color/holo_blue_bright">
+
+        </LinearLayout>
 
     </RelativeLayout>
 </ScrollView>

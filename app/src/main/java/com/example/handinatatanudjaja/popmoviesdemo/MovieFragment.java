@@ -161,6 +161,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     String movReleaseDate = "";
                     String movVoteAvg = "";
                     String movOverview = "";
+                    String movID = "";
 
                     if(movieGridView.getAdapter() instanceof MovieFavoriteAdapter) {
                         Cursor favMovieItem = (Cursor)favImagesAdapter.getItem(position);
@@ -180,6 +181,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                         movVoteAvg = favMovieItem.getString(colIndex);
                         colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_OVERVIEW);
                         movOverview = favMovieItem.getString(colIndex);
+                        colIndex = favMovieItem.getColumnIndex(MovieContract.MovieFavoriteEntry.COLUMN_MOVIE_ID);
+                        movID = favMovieItem.getString(colIndex);
                     }
                     else {
                         MovieItem movieObj = (MovieItem) posterImagesAdapter.getMovieDataAt(position);
@@ -188,6 +191,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                         movReleaseDate = movieObj.getmReleaseDate();
                         movVoteAvg = movieObj.getmVoteAverage();
                         movOverview = movieObj.getmOverView();
+                        movID = movieObj.getmID();
                     }
 
                     Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class)
@@ -195,7 +199,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                             .putExtra("bigposter", movBigPoster)
                             .putExtra("releasedate", movReleaseDate)
                             .putExtra("voteaverage", movVoteAvg)
-                            .putExtra("overview", movOverview);
+                            .putExtra("overview", movOverview)
+                            .putExtra("id",movID);
                     startActivity(detailIntent);
                 }
                 catch (Exception e)
@@ -306,7 +311,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     movieDetailObj.setmReleaseDate(movie.getString("release_date"));
                     movieDetailObj.setmOverView(movie.getString("overview"));
                     movieDetailObj.setmVoteAverage(movie.getString("vote_average"));
-
+                    movieDetailObj.setmID(movie.getString("id"));
                     photoStringAry[i] = movieDetailObj;
                 }
             }
@@ -324,7 +329,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             String sortByValue = null;
 
             //TODO: Please input the apikey here
-            String apiKey = "";
+            String apiKey = MovieConstants.movieAPIKey;
 
             if (params[0] == SORT_MOST_POPULAR) {
                 sortByValue = "popularity.desc";

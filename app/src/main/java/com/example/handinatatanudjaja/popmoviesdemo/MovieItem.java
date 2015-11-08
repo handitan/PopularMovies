@@ -13,6 +13,7 @@ public class MovieItem implements Parcelable{
     private String mReleaseDate;
     private String mOverView;
     private String mVoteAverage;
+    private String mID;
 
     public MovieItem() {}
 
@@ -64,6 +65,10 @@ public class MovieItem implements Parcelable{
         this.mVoteAverage = mVoteAverage;
     }
 
+    public String getmID() { return mID; }
+
+    public void setmID(String mID) {this.mID = mID;}
+
     //Parcelables implementations
     public int describeContents() {
         return 0;
@@ -76,6 +81,7 @@ public class MovieItem implements Parcelable{
         out.writeString(mReleaseDate);
         out.writeString(mOverView);
         out.writeString(mVoteAverage);
+        out.writeString(mID);
     }
 
     public static final Parcelable.Creator<MovieItem> CREATOR
@@ -96,5 +102,6 @@ public class MovieItem implements Parcelable{
         mReleaseDate = in.readString();
         mOverView = in.readString();
         mVoteAverage = in.readString();
+        mID = in.readString();
     }
 }
