@@ -95,7 +95,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/movietrailers"
             android:orientation="vertical"
-            android:background="@android:color/holo_blue_bright">
+
+            android:showDividers="middle"
+            android:visibility="visible">
 
         </LinearLayout>
 

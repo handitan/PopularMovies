@@ -69,7 +69,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             overviewView.setText(intent.getStringExtra("overview"));
 
             new FetchTrailersTask().execute(intent.getStringExtra("id"));
-
+            new FetchReviewsTask().execute(intent.getStringExtra("id"));
             Button markFavoriteBtn = (Button) findViewById(R.id.moviemarkfavorite);
             markFavoriteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -233,6 +233,128 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     }
 
+    private class FetchReviewsTask extends AsyncTask<String, Void, MovieReviewItem[]> {
+
+        private MovieReviewItem[] getMovieReviewDataFromJSON(String pMovieJsonStr) throws JSONException {
+            JSONObject jsonTemp = new JSONObject(pMovieJsonStr);
+            JSONArray movieAry = jsonTemp.getJSONArray("results");
+
+            MovieReviewItem[] movieReviewAry = null;
+            if (movieAry != null && movieAry.length() > 0) {
+                movieReviewAry = new MovieReviewItem[movieAry.length()];
+
+                for (int i = 0; i < movieAry.length(); ++i) {
+                    JSONObject movie = movieAry.getJSONObject(i);
+                    MovieReviewItem movieReviewObj = new MovieReviewItem();
+                    movieReviewObj.setAuthor(movie.getString("author"));
+                    movieReviewObj.setContent(movie.getString("content"));
+                    movieReviewAry[i] = movieReviewObj;
+                }
+            }
+            return movieReviewAry;
+        }
+
+        @Override
+        protected MovieReviewItem[] doInBackground(String... params) {
+            //http://api.themoviedb.org/3/movie/135397/reviews?api_key=4023d68647cd21b2cfb5115acda7fe46
+            if (params.length == 0) {
+                return null;
+            }
+
+            String movieID = params[0];
+
+            String movieUri = "http://api.themoviedb.org/3/movie";
+            Uri uriTemp = Uri.parse(movieUri)
+                    .buildUpon()
+                    .appendPath(movieID)
+                    .appendPath("reviews")
+                    .appendQueryParameter("api_key", MovieConstants.movieAPIKey)
+                    .build();
+            String uriStr = uriTemp.toString();
+
+            //Todos:
+            //- Connect the url and get the data
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String moviesJsonStr = null;
+
+            try {
+                URL url = new URL(uriStr);
+                // Create the request to Movie db, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                moviesJsonStr = buffer.toString();
+                Log.v(LOG_TAG, "Movie reviews JSON String: " + moviesJsonStr);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the data, there's no point in attempting
+                return null;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error ", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+
+            MovieReviewItem[] trailerStringAry = null;
+            try {
+                trailerStringAry = getMovieReviewDataFromJSON(moviesJsonStr);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error in parsing JSON", e);
+            }
+            return trailerStringAry;
+        }
+
+        @Override
+        protected void onPostExecute(MovieReviewItem[] pMovieReviewAry) {
+
+            if (pMovieReviewAry.length > 0) {
+                LinearLayout movieReviewLayout = (LinearLayout) findViewById(R.id.moviereviews);
+
+                for (MovieReviewItem pMovieReview : pMovieReviewAry) {
+                    TextView txtViewContent = new TextView(currentContext);
+                    txtViewContent.setText(pMovieReview.getContent());
+                    movieReviewLayout.addView(txtViewContent);
+                }
+
+                movieReviewLayout.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+
     private class FetchTrailersTask extends AsyncTask<String, Void, MovieTrailerItem[]> {
 
         private MovieTrailerItem[] getMovieTrailerDataFromJSON(String pMovieJsonStr) throws JSONException {
@@ -374,7 +496,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                             .into(imageView);
                     movieTrailerLayout.addView(imageView);
 
-                    imageView.setOnClickListener(new View.OnClickListener(){
+                    imageView.setOnClickListener(new ImageView.OnClickListener(){
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + movieTrailerKey));
