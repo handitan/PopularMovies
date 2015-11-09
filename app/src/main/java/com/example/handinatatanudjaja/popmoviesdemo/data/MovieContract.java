@@ -28,6 +28,8 @@ public class MovieContract {
 
     // Possible paths (appended to base content URI for possible URI's)
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_MOVIE_TRAILER = "movie_trailer";
+    public static final String PATH_MOVIE_REVIEW = "movie_review";
 
     // To make it easy to query for the exact date, we normalize all dates that go into
     // the database to the start of the the Julian day at UTC.
@@ -63,6 +65,7 @@ public class MovieContract {
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_VOTE_AVG = "vote_average";
+        public static final String COLUMN_FAV_MOVIE_ID = "fav_movie_id";
 
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -80,10 +83,19 @@ public class MovieContract {
     {"id":"548ce4e292514122ed002d99","iso_639_1":"en","key":"YWNWi-ZWL3c","name":"Official Trailer #1","site":"YouTube","size":1080,"type":"Trailer"}]}
      */
     public static final class MovieTrailerEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE_TRAILER).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE_TRAILER;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE_TRAILER;
+
         public static final String TABLE_NAME = "movie_trailer";
 
         public static final String COLUMN_TRAILER_ID = "trailer_id";
-        public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_FAV_MOVIE_ID = "fav_movie_id";
         public static final String COLUMN_TRAILER_KEY = "trailer_key";
     }
 
@@ -102,10 +114,19 @@ public class MovieContract {
      */
 
     public static final class MovieReviewEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE_REVIEW).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE_REVIEW;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE_REVIEW;
+
         public static final String TABLE_NAME = "movie_review";
 
         public static final String COLUMN_REVIEW_ID = "review_id";
-        public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_FAV_MOVIE_ID = "fav_movie_id";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_CONTENT = "content";
     }

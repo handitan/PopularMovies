@@ -61,14 +61,6 @@
             android:layout_toRightOf="@id/moviepic"
             android:text="Favorite"
             />
-        <Button
-            android:id="@+id/moviefavoriteCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/movievoteavg"
-            android:layout_toRightOf="@+id/moviemarkfavorite"
-            android:text="Mark Favorite?"
-            />
 
         <TextView
             android:id="@+id/movieoverview"

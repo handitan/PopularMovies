@@ -68,21 +68,24 @@ public class MovieDBHelper extends SQLiteOpenHelper{
         final String SQL_CREATE_MOVIETRAILER_TABLE = "CREATE TABLE " + MovieContract.MovieTrailerEntry.TABLE_NAME + " (" +
                 MovieContract.MovieTrailerEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID + " TEXT NOT NULL, " +
-                MovieContract.MovieTrailerEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
                 MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY + " TEXT NOT NULL, " +
+                " FOREIGN KEY (" + MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID + ") REFERENCES " + MovieFavoriteEntry.TABLE_NAME + "(" + MovieFavoriteEntry._ID + ")," +
                 " UNIQUE (" + MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID + ") ON CONFLICT REPLACE);";
 
         final String SQL_CREATE_MOVIEREVIEW_TABLE = "CREATE TABLE " + MovieContract.MovieReviewEntry.TABLE_NAME + " (" +
                 MovieContract.MovieReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID + " TEXT NOT NULL, " +
-                MovieContract.MovieReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
                 MovieContract.MovieReviewEntry.COLUMN_AUTHOR + " TEXT, " +
                 MovieContract.MovieReviewEntry.COLUMN_CONTENT + " TEXT, " +
+                " FOREIGN KEY (" + MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID + ") REFERENCES " + MovieFavoriteEntry.TABLE_NAME + "(" + MovieFavoriteEntry._ID + ")," +
                 " UNIQUE (" + MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE);";
 
-        //db.execSQL(SQL_CREATE_MOVIETRAILER_TABLE);
-        //db.execSQL(SQL_CREATE_MOVIEREVIEW_TABLE);
         db.execSQL(SQL_CREATE_MOVIEFAVORITE_TABLE);
+        db.execSQL(SQL_CREATE_MOVIETRAILER_TABLE);
+        db.execSQL(SQL_CREATE_MOVIEREVIEW_TABLE);
+
     }
 
     @Override

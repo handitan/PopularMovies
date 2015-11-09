@@ -5,7 +5,8 @@ package com.example.handinatatanudjaja.popmoviesdemo;
  */
 public class MovieTrailerItem {
     private String key = "";
-
+    private String movieID = "";
+    private String trailerID = "";
 
     public String getKey() {
         return key;
@@ -13,5 +14,21 @@ public class MovieTrailerItem {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getMovieID() {
+        return movieID;
+    }
+
+    public void setMovieID(String movieID) {
+        this.movieID = movieID;
+    }
+
+    public String getTrailerID() {
+        return trailerID;
+    }
+
+    public void setTrailerID(String trailerID) {
+        this.trailerID = trailerID;
     }
 }

@@ -40,6 +40,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     private final String LOG_TAG = MovieDetailActivity.class.getSimpleName();
     private Intent intent;
     private Context currentContext;
+    private MovieTrailerItem[] mMovieTrailers;
+    private MovieReviewItem[] mMovieReviews;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,14 +83,14 @@ public class MovieDetailActivity extends AppCompatActivity {
             });
 
 
-            Button markFavoriteCheckBtn = (Button) findViewById(R.id.moviefavoriteCheck);
+            /*Button markFavoriteCheckBtn = (Button) findViewById(R.id.moviefavoriteCheck);
             markFavoriteCheckBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //Perform action click
                     favoriteCheck();
                 }
-            });
+            });*/
         }
     }
 
@@ -119,7 +122,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void favoriteCheck() {
+    /*private void favoriteCheck() {
 
         String[] mProjection = {MovieContract.MovieFavoriteEntry.COLUMN_TITLE};
 
@@ -138,9 +141,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         else {
             Toast.makeText(getApplicationContext(),"ALREADY FAV LAAA",Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
     //Look at FetchWeatherTask
     private void addMovieFavorite() {
+
+        LinearLayout movieTrailerLayout = (LinearLayout) findViewById(R.id.movietrailers);
+        LinearLayout movieReviewLayout = (LinearLayout) findViewById(R.id.moviereviews);
 
         if (intent != null) {
 
@@ -156,7 +162,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             Cursor retCursor = getContentResolver().query(MovieContract.MovieFavoriteEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
             if (retCursor.getCount() == 0) {
-                Toast.makeText(getApplicationContext(),"Saving to favorite",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Saving it as a favorite",Toast.LENGTH_SHORT).show();
             }
             else {
                 Toast.makeText(getApplicationContext(),"It's already a favorite",Toast.LENGTH_SHORT).show();
@@ -190,6 +196,55 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             getContentResolver().insert(MovieContract.MovieFavoriteEntry.CONTENT_URI, movieValues);
 
+            //For movie trailers
+            /*
+               MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID + " TEXT NOT NULL, " +
+                MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
+                MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY + " TEXT NOT NULL, " +
+
+             */
+            if (mMovieTrailers.length > 0) {
+                //Do the bulk insert
+                ContentValues[] trailerValuesAry = new ContentValues[mMovieTrailers.length];
+
+                for (int i = 0; i <  mMovieTrailers.length; ++i) {
+                    MovieTrailerItem tempTrailer = mMovieTrailers[i];
+                    ContentValues trailerValues = new ContentValues();
+                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID, tempTrailer.getTrailerID());
+                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID, tempTrailer.getMovieID());
+                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY, tempTrailer.getKey());
+                    trailerValuesAry[i] = trailerValues;
+                }
+
+                getContentResolver().bulkInsert(MovieContract.MovieTrailerEntry.CONTENT_URI, trailerValuesAry);
+                /*for (int i = 0; i < movieAry.length(); ++i) {
+                    JSONObject movie = movieAry.getJSONObject(i);
+                    MovieTrailerItem movieTrailerObj = new MovieTrailerItem();
+                    movieTrailerObj.setKey(movie.getString("key"));
+                    movieTrailerAry[i] = movieTrailerObj;*/
+            }
+
+            //For movie reviews
+            /*
+            MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID + " TEXT NOT NULL, " +
+                MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
+                MovieContract.MovieReviewEntry.COLUMN_AUTHOR + " TEXT, " +
+                MovieContract.MovieReviewEntry.COLUMN_CONTENT + " TEXT, " +
+             */
+            if (mMovieReviews.length > 0) {
+                ContentValues[] reviewValuesAry = new ContentValues[mMovieReviews.length];
+                for (int i = 0; i <  mMovieReviews.length; ++i) {
+                    MovieReviewItem tempReview = mMovieReviews[i];
+                    ContentValues reviewValues = new ContentValues();
+                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID, tempReview.getReviewID());
+                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID, tempReview.getMovieID());
+                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_AUTHOR, tempReview.getAuthor());
+                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_CONTENT, tempReview.getContent());
+                    reviewValuesAry[i] = reviewValues;
+                }
+
+                getContentResolver().bulkInsert(MovieContract.MovieReviewEntry.CONTENT_URI, reviewValuesAry);
+            }
         }
 
 
@@ -235,6 +290,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private class FetchReviewsTask extends AsyncTask<String, Void, MovieReviewItem[]> {
 
+        private String movieID = "";
+
         private MovieReviewItem[] getMovieReviewDataFromJSON(String pMovieJsonStr) throws JSONException {
             JSONObject jsonTemp = new JSONObject(pMovieJsonStr);
             JSONArray movieAry = jsonTemp.getJSONArray("results");
@@ -248,6 +305,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                     MovieReviewItem movieReviewObj = new MovieReviewItem();
                     movieReviewObj.setAuthor(movie.getString("author"));
                     movieReviewObj.setContent(movie.getString("content"));
+                    movieReviewObj.setMovieID(movieID);
+                    movieReviewObj.setReviewID(movie.getString("id"));
                     movieReviewAry[i] = movieReviewObj;
                 }
             }
@@ -261,7 +320,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 return null;
             }
 
-            String movieID = params[0];
+            movieID = params[0];
 
             String movieUri = "http://api.themoviedb.org/3/movie";
             Uri uriTemp = Uri.parse(movieUri)
@@ -340,6 +399,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(MovieReviewItem[] pMovieReviewAry) {
 
+            mMovieReviews = pMovieReviewAry;
             if (pMovieReviewAry.length > 0) {
                 LinearLayout movieReviewLayout = (LinearLayout) findViewById(R.id.moviereviews);
 
@@ -357,6 +417,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private class FetchTrailersTask extends AsyncTask<String, Void, MovieTrailerItem[]> {
 
+        private String movieID = "";
+
         private MovieTrailerItem[] getMovieTrailerDataFromJSON(String pMovieJsonStr) throws JSONException {
             JSONObject jsonTemp = new JSONObject(pMovieJsonStr);
             JSONArray movieAry = jsonTemp.getJSONArray("results");
@@ -368,6 +430,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                 for (int i = 0; i < movieAry.length(); ++i) {
                     JSONObject movie = movieAry.getJSONObject(i);
                     MovieTrailerItem movieTrailerObj = new MovieTrailerItem();
+                    movieTrailerObj.setMovieID(movieID);
+                    movieTrailerObj.setTrailerID(movie.getString("id"));
                     movieTrailerObj.setKey(movie.getString("key"));
                     movieTrailerAry[i] = movieTrailerObj;
                 }
@@ -381,7 +445,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 return null;
             }
 
-            String movieID = params[0];
+            movieID = params[0];
 
             String movieUri = "http://api.themoviedb.org/3/movie";
             Uri uriTemp = Uri.parse(movieUri)
@@ -464,6 +528,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(MovieTrailerItem[] pMovietrailerAry) {
 
+            mMovieTrailers = pMovietrailerAry;
             LinearLayout movieTrailerLayout = (LinearLayout) findViewById(R.id.movietrailers);
 
             if (pMovietrailerAry.length > 0) {
