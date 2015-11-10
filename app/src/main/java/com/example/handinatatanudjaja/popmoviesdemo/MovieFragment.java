@@ -59,6 +59,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private final String MOVIE_PARCEL = "movieItemParcel";
     private final int SORT_MOST_POPULAR = 0;
     private final int SORT_HIGHEST_RATED = 1;
+    private final int SORT_MY_FAV = 2;
+    private int selectedSortBy = -1;
     private final String LOG_TAG = MovieFragment.class.getSimpleName();
     private final String INACTIVE_NETWORK_WARNING = "Unable to retrieve movies due to no network connectivity.";
 
@@ -88,7 +90,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public boolean onOptionsItemSelected (MenuItem item) {
 
         int id = item.getItemId();
-        int selectedSortBy = -1;
+        //int selectedSortBy = -1;
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
         if (id == R.id.action_popular_movies) {
@@ -100,10 +102,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         }
         else
         if (id == R.id.action_favorite_movies) {
-            selectedSortBy = -1;
-            //TODO
-            //Gridview needs to switch to different adapter
-            //cursor adapter??
+            selectedSortBy = SORT_MY_FAV;
             movieGridView.setAdapter(favImagesAdapter);
             return super.onOptionsItemSelected(item);
         }
@@ -200,7 +199,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                             .putExtra("releasedate", movReleaseDate)
                             .putExtra("voteaverage", movVoteAvg)
                             .putExtra("overview", movOverview)
-                            .putExtra("id",movID);
+                            .putExtra("id",movID)
+                            .putExtra("selectedSortBy",selectedSortBy);
                     startActivity(detailIntent);
                 }
                 catch (Exception e)

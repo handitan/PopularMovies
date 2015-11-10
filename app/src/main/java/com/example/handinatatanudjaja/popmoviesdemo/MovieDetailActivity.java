@@ -71,8 +71,17 @@ public class MovieDetailActivity extends AppCompatActivity {
             TextView overviewView = (TextView) findViewById(R.id.movieoverview);
             overviewView.setText(intent.getStringExtra("overview"));
 
-            new FetchTrailersTask().execute(intent.getStringExtra("id"));
-            new FetchReviewsTask().execute(intent.getStringExtra("id"));
+            int selectedSortBy = intent.getIntExtra("selectedSortBy",0);
+            
+            if (selectedSortBy == 2) {
+                loadTrailers();
+                loadReviews();
+            }
+            else {
+                new FetchTrailersTask().execute(intent.getStringExtra("id"));
+                new FetchReviewsTask().execute(intent.getStringExtra("id"));
+            }
+
             Button markFavoriteBtn = (Button) findViewById(R.id.moviemarkfavorite);
             markFavoriteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -142,6 +151,158 @@ public class MovieDetailActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"ALREADY FAV LAAA",Toast.LENGTH_SHORT).show();
         }
     }*/
+
+    private void loadTrailers() {
+
+        String[] mProjection = {MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID,MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID,MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY};
+
+        // Defines a string to contain the selection clause
+        String mSelectionClause = null;
+        mSelectionClause = MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID + " = ?";
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {""};
+        mSelectionArgs[0] = intent.getStringExtra("id");
+
+        Cursor retCursor = getContentResolver().query(MovieContract.MovieTrailerEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
+
+        if (retCursor.getCount() == 0) {
+            //No trailers available
+            return;
+        }
+
+        MovieTrailerItem[] movieTrailerAry = new MovieTrailerItem[retCursor.getCount()];
+        int movieAryIndex = 0;
+        retCursor.moveToFirst();
+        while (true) {
+
+            Boolean isLastRecord = retCursor.isLast();
+
+            MovieTrailerItem tempTrailerItem = new MovieTrailerItem();
+
+            int colIndex = retCursor.getColumnIndex(MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID);
+            String colVal  = retCursor.getString(colIndex);
+            tempTrailerItem.setTrailerID(colVal);
+
+            colIndex = retCursor.getColumnIndex(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID);
+            colVal  = retCursor.getString(colIndex);
+            tempTrailerItem.setMovieID(colVal);
+
+            colIndex = retCursor.getColumnIndex(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY);
+            colVal  = retCursor.getString(colIndex);
+            tempTrailerItem.setKey(colVal);
+
+            movieTrailerAry[movieAryIndex] = tempTrailerItem;
+            ++movieAryIndex;
+            if (!isLastRecord) {
+                retCursor.moveToNext();
+            }
+            else {
+                break;
+            }
+        }
+
+        LinearLayout movieTrailerLayout = (LinearLayout) findViewById(R.id.movietrailers);
+
+        for (MovieTrailerItem pItem : movieTrailerAry) {
+                ImageView imageView = new ImageView(currentContext);
+
+                //imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                imageView.setAdjustViewBounds(true);
+                //http://img.youtube.com/vi/bvu-zlR5A8Q/default.jpg
+
+                final String movieTrailerKey = pItem.getKey();
+
+                String movieTrailerUri = "http://img.youtube.com/vi";
+                Uri uriTemp = Uri.parse(movieTrailerUri)
+                        .buildUpon()
+                        .appendPath(movieTrailerKey)
+                        .appendPath("default.jpg")
+                        .build();
+                String movieTrailerUriStr = uriTemp.toString();
+
+                Picasso.with(currentContext)
+                        .load(movieTrailerUriStr)
+                        .resize(200, 200)
+                        .into(imageView);
+                movieTrailerLayout.addView(imageView);
+
+                imageView.setOnClickListener(new ImageView.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + movieTrailerKey));
+                        startActivity(intent);
+                    }
+                });
+        }
+
+        movieTrailerLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void loadReviews() {
+        String[] mProjection = {MovieContract.MovieReviewEntry.COLUMN_AUTHOR,MovieContract.MovieReviewEntry.COLUMN_CONTENT,
+                                MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID,MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID};
+
+        // Defines a string to contain the selection clause
+        String mSelectionClause = null;
+        mSelectionClause = MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID + " = ?";
+
+        // Initializes an array to contain selection arguments
+        String[] mSelectionArgs = {""};
+        mSelectionArgs[0] = intent.getStringExtra("id");
+
+        Cursor retCursor = getContentResolver().query(MovieContract.MovieReviewEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
+
+        if (retCursor.getCount() == 0) {
+            //No trailers available
+            return;
+        }
+
+        MovieReviewItem[] movieReviewAry = new MovieReviewItem[retCursor.getCount()];
+        int movieAryIndex = 0;
+        retCursor.moveToFirst();
+        while (true) {
+
+            Boolean isLastRecord = retCursor.isLast();
+
+            MovieReviewItem tempReviewItem = new MovieReviewItem();
+
+            int colIndex = retCursor.getColumnIndex(MovieContract.MovieReviewEntry.COLUMN_AUTHOR);
+            String colVal  = retCursor.getString(colIndex);
+            tempReviewItem.setAuthor(colVal);
+
+            colIndex = retCursor.getColumnIndex(MovieContract.MovieReviewEntry.COLUMN_CONTENT);
+            colVal  = retCursor.getString(colIndex);
+            tempReviewItem.setContent(colVal);
+
+            colIndex = retCursor.getColumnIndex(MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID);
+            colVal  = retCursor.getString(colIndex);
+            tempReviewItem.setReviewID(colVal);
+
+            colIndex = retCursor.getColumnIndex(MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID);
+            colVal  = retCursor.getString(colIndex);
+            tempReviewItem.setMovieID(colVal);
+
+            movieReviewAry[movieAryIndex] = tempReviewItem;
+            ++movieAryIndex;
+            if (!isLastRecord) {
+                retCursor.moveToNext();
+            }
+            else {
+                break;
+            }
+        }
+
+        LinearLayout movieReviewLayout = (LinearLayout) findViewById(R.id.moviereviews);
+
+        for (MovieReviewItem pMovieReview : movieReviewAry) {
+            TextView txtViewContent = new TextView(currentContext);
+            txtViewContent.setText(pMovieReview.getContent());
+            movieReviewLayout.addView(txtViewContent);
+        }
+
+        movieReviewLayout.setVisibility(View.VISIBLE);
+    }
     //Look at FetchWeatherTask
     private void addMovieFavorite() {
 
@@ -217,11 +378,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
 
                 getContentResolver().bulkInsert(MovieContract.MovieTrailerEntry.CONTENT_URI, trailerValuesAry);
-                /*for (int i = 0; i < movieAry.length(); ++i) {
-                    JSONObject movie = movieAry.getJSONObject(i);
-                    MovieTrailerItem movieTrailerObj = new MovieTrailerItem();
-                    movieTrailerObj.setKey(movie.getString("key"));
-                    movieTrailerAry[i] = movieTrailerObj;*/
             }
 
             //For movie reviews
@@ -246,46 +402,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 getContentResolver().bulkInsert(MovieContract.MovieReviewEntry.CONTENT_URI, reviewValuesAry);
             }
         }
-
-
-
-        /*
-        public static final String COLUMN_MOVIE_ID = "movie_id";
-        //Foreign keys
-
-        //End Foreign keys
-
-        public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_SMALL_POSTER_PATH = "small_poster_path";
-        public static final String COLUMN_BIG_POSTER_PATH = "big_poster_path";
-        public static final String COLUMN_RELEASE_DATE = "release_date";
-        public static final String COLUMN_OVERVIEW = "overview";
-        public static final String COLUMN_VOTE_AVG = "vote_average";
-
-        "CREATE TABLE " + MovieFavoriteEntry.TABLE_NAME + " (" +
-                MovieFavoriteEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-
-                MovieFavoriteEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
-
-                MovieFavoriteEntry.COLUMN_TITLE + " TEXT UNIQUE NOT NULL," +
-                MovieFavoriteEntry.COLUMN_SMALL_POSTER_PATH + " TEXT," +
-                MovieFavoriteEntry.COLUMN_BIG_POSTER_PATH + " TEXT," +
-                MovieFavoriteEntry.COLUMN_OVERVIEW + " TEXT," +
-                MovieFavoriteEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL," +
-                MovieFavoriteEntry.COLUMN_VOTE_AVG + " REAL, " +
-
-                //Set up the trailer and review column as both foreign keys
-                //" FOREIGN KEY (" + MovieFavoriteEntry.COLUMN_TRAILER_KEY + ") REFERENCES " +
-                //MovieTrailerEntry.TABLE_NAME + " (" + MovieTrailerEntry.COLUMN_KEY + "), " +
-                //" FOREIGN KEY (" + MovieFavoriteEntry.COLUMN_REVIEW_KEY + ") REFERENCES " +
-                //MovieReviewEntry.TABLE_NAME + " (" + MovieReviewEntry.COLUMN_KEY + "), " +
-
-                //Make sure movie favorite to just have one entry per column title
-                " UNIQUE (" + MovieFavoriteEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
-         */
-
-
-
     }
 
     private class FetchReviewsTask extends AsyncTask<String, Void, MovieReviewItem[]> {
@@ -400,7 +516,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         protected void onPostExecute(MovieReviewItem[] pMovieReviewAry) {
 
             mMovieReviews = pMovieReviewAry;
-            if (pMovieReviewAry.length > 0) {
+            if (pMovieReviewAry != null && pMovieReviewAry.length > 0) {
                 LinearLayout movieReviewLayout = (LinearLayout) findViewById(R.id.moviereviews);
 
                 for (MovieReviewItem pMovieReview : pMovieReviewAry) {
@@ -531,7 +647,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             mMovieTrailers = pMovietrailerAry;
             LinearLayout movieTrailerLayout = (LinearLayout) findViewById(R.id.movietrailers);
 
-            if (pMovietrailerAry.length > 0) {
+            if (pMovietrailerAry != null && pMovietrailerAry.length > 0) {
                 //LinearLayout movieTrailerLayout = new LinearLayout(currentContext);
                 //movieTrailerLayout.setOrientation(LinearLayout.HORIZONTAL);
 
