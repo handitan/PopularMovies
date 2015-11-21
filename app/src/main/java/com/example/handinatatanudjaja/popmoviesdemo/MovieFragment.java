@@ -57,6 +57,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private GridView movieGridView;
 
     private final String MOVIE_PARCEL = "movieItemParcel";
+    private final String MOVIESORTBY_PARCEL = "movieSortByParcel";
     private final int SORT_MOST_POPULAR = 0;
     private final int SORT_HIGHEST_RATED = 1;
     private final int SORT_MY_FAV = 2;
@@ -148,7 +149,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         favImagesAdapter = new MovieFavoriteAdapter(getActivity(), null, 0);
         posterImagesAdapter = new ImageAdapter(container.getContext());
-        movieGridView.setAdapter(posterImagesAdapter);
+
+        boolean setAdapterAsPosterImage = true;
+        if (savedInstanceState != null) {
+            selectedSortBy = savedInstanceState.getInt(MOVIESORTBY_PARCEL);
+            if (selectedSortBy == SORT_MY_FAV) {
+                movieGridView.setAdapter(favImagesAdapter);
+                setAdapterAsPosterImage = false;
+            }
+        }
+
+        if (setAdapterAsPosterImage) {
+            movieGridView.setAdapter(posterImagesAdapter);
+        }
 
         movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -215,13 +228,15 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         int sortByValue = sharedPref.getInt(getString(R.string.preference_file_key), sortByDefaultValue);
 
         if (savedInstanceState != null) {
-            ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
-            listOfThumbnails.clear();
-            posterImagesAdapter.setmMovieList(null);
+            if(movieGridView.getAdapter() instanceof ImageAdapter) {
+                ArrayList<MovieItem> listOfThumbnails = posterImagesAdapter.getmMovieList();
+                listOfThumbnails.clear();
+                posterImagesAdapter.setmMovieList(null);
 
-            ArrayList<MovieItem> moviesParcel = savedInstanceState.getParcelableArrayList(MOVIE_PARCEL);
-            posterImagesAdapter.setmMovieList(moviesParcel);
-            posterImagesAdapter.notifyDataSetChanged();
+                ArrayList<MovieItem> moviesParcel = savedInstanceState.getParcelableArrayList(MOVIE_PARCEL);
+                posterImagesAdapter.setmMovieList(moviesParcel);
+                posterImagesAdapter.notifyDataSetChanged();
+            }
         }
         else {
             if (isNetWorkAvailable()) {
@@ -239,6 +254,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putInt(MOVIESORTBY_PARCEL,selectedSortBy);
         outState.putParcelableArrayList(MOVIE_PARCEL, posterImagesAdapter.getmMovieList());
     }
 

@@ -51,6 +51,7 @@
             android:textSize="15dp"
             android:text="10/10"
             />
+
         <TextView
             android:id="@+id/movieoverview"
             android:layout_width="wrap_content"
@@ -60,6 +61,40 @@
             android:layout_below="@id/movievoteavg"
             android:layout_toRightOf="@+id/moviepic"
             android:text="overview"/>
+
+        <Button
+            android:id="@+id/moviemarkfavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movieoverview"
+            android:layout_toRightOf="@id/moviepic"
+            android:text="Favorite"
+            />
+
+
+        <LinearLayout
+            android:id = "@+id/movietrailers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/moviepic"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="5dp"
+            android:visibility="gone">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id = "@+id/moviereviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movietrailers"
+            android:orientation="vertical"
+
+            android:showDividers="middle"
+            android:visibility="visible">
+
+        </LinearLayout>
 
     </RelativeLayout>
 </ScrollView>
