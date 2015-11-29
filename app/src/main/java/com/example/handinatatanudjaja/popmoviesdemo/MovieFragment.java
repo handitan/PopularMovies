@@ -2,7 +2,6 @@ package com.example.handinatatanudjaja.popmoviesdemo;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -67,6 +66,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     public MovieFragment() {
         // Required empty public constructor
+    }
+
+    public interface Callback {
+        public void onMovieItemSelected(String movTitle, String movBigPoster, String movReleaseDate, String movVoteAvg,
+                                        String movOverView, String movID, int movSelectedSortBy);
     }
 
     @Override
@@ -148,7 +152,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         movieGridView = (GridView) rootView.findViewById(R.id.gridview_movie);
 
         favImagesAdapter = new MovieFavoriteAdapter(getActivity(), null, 0);
-        posterImagesAdapter = new ImageAdapter(container.getContext());
+        //posterImagesAdapter = new ImageAdapter(container.getContext());
+        posterImagesAdapter = new ImageAdapter(getActivity().getApplicationContext());
 
         boolean setAdapterAsPosterImage = true;
         if (savedInstanceState != null) {
@@ -206,7 +211,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                         movID = movieObj.getmID();
                     }
 
-                    Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class)
+                    /*Intent detailIntent = new Intent(getActivity(), MovieDetailActivity.class)
                             .putExtra("title", movTitle)
                             .putExtra("bigposter", movBigPoster)
                             .putExtra("releasedate", movReleaseDate)
@@ -214,7 +219,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                             .putExtra("overview", movOverview)
                             .putExtra("id",movID)
                             .putExtra("selectedSortBy",selectedSortBy);
-                    startActivity(detailIntent);
+                    startActivity(detailIntent);*/
+                    ((Callback) getActivity()).onMovieItemSelected(movTitle,movBigPoster,movReleaseDate,movVoteAvg,movOverview,movID,selectedSortBy);
+
                 }
                 catch (Exception e)
                 {
