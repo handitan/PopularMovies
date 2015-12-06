@@ -17,7 +17,7 @@
             android:padding="10dp"
             android:textSize="20dp"
             android:textColor="@android:color/white"
-            android:text="Test"
+            android:text="Please select a movie"
             />
 
         <ImageView android:id="@+id/moviepic"
@@ -37,7 +37,6 @@
             android:layout_toRightOf="@+id/moviepic"
             android:layout_marginLeft="15dp"
             android:textSize="20dp"
-            android:text="2015-05-15"
             />
 
         <TextView
@@ -49,7 +48,6 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="15dp"
             android:textSize="15dp"
-            android:text="10/10"
             />
 
         <TextView
@@ -59,8 +57,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginLeft="15dp"
             android:layout_below="@id/movievoteavg"
-            android:layout_toRightOf="@+id/moviepic"
-            android:text="overview"/>
+            android:layout_toRightOf="@+id/moviepic" />
 
         <Button
             android:id="@+id/moviemarkfavorite"
@@ -69,6 +66,7 @@
             android:layout_below="@+id/movieoverview"
             android:layout_toRightOf="@id/moviepic"
             android:text="Favorite"
+            android:visibility="invisible"
             />
 
 

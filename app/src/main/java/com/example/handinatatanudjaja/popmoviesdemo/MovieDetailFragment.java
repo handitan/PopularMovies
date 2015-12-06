@@ -328,97 +328,99 @@ public class MovieDetailFragment extends Fragment {
         LinearLayout movieTrailerLayout = (LinearLayout) getActivity().findViewById(R.id.movietrailers);
         LinearLayout movieReviewLayout = (LinearLayout) getActivity().findViewById(R.id.moviereviews);
 
-        if (intent != null) {
+        try {
+            if (intent != null) {
 
-            String[] mProjection = {MovieContract.MovieFavoriteEntry.COLUMN_TITLE};
+                String[] mProjection = {MovieContract.MovieFavoriteEntry.COLUMN_TITLE};
 
-            // Defines a string to contain the selection clause
-            String mSelectionClause = null;
-            mSelectionClause = MovieContract.MovieFavoriteEntry.COLUMN_TITLE + " = ?";
+                // Defines a string to contain the selection clause
+                String mSelectionClause = null;
+                mSelectionClause = MovieContract.MovieFavoriteEntry.COLUMN_TITLE + " = ?";
 
-            // Initializes an array to contain selection arguments
-            String[] mSelectionArgs = {""};
-            mSelectionArgs[0] = intent.getStringExtra("title");
+                // Initializes an array to contain selection arguments
+                String[] mSelectionArgs = {""};
+                mSelectionArgs[0] = intent.getStringExtra("title");
 
-            Cursor retCursor = getActivity().getContentResolver().query(MovieContract.MovieFavoriteEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
-            if (retCursor.getCount() == 0) {
-                Toast.makeText(getActivity().getApplicationContext(),"Saving it as a favorite",Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(getActivity().getApplicationContext(),"It's already a favorite",Toast.LENGTH_SHORT).show();
-                return;
-            }
+                Cursor retCursor = getActivity().getContentResolver().query(MovieContract.MovieFavoriteEntry.CONTENT_URI, mProjection, mSelectionClause, mSelectionArgs, null);
+                if (retCursor.getCount() == 0) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Saving it as a favorite", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "It's already a favorite", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            ContentValues movieValues = new ContentValues();
+                ContentValues movieValues = new ContentValues();
 
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_MOVIE_ID, intent.getStringExtra("id"));
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_TITLE, intent.getStringExtra("title"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_MOVIE_ID, intent.getStringExtra("id"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_TITLE, intent.getStringExtra("title"));
 
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_SMALL_POSTER_PATH, intent.getStringExtra("bigposter"));
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_BIG_POSTER_PATH, intent.getStringExtra("bigposter"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_SMALL_POSTER_PATH, intent.getStringExtra("bigposter"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_BIG_POSTER_PATH, intent.getStringExtra("bigposter"));
 
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_OVERVIEW, intent.getStringExtra("overview"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_OVERVIEW, intent.getStringExtra("overview"));
 
-            String movReleaseDate = intent.getStringExtra("releasedate");
-            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-            long movieMlliseconds;
-            try {
-                Date d = f.parse(movReleaseDate);
-                movieMlliseconds = d.getTime();
-            }
-            catch (Exception e){
-                movieMlliseconds = new Date().getTime();
-            }
+                String movReleaseDate = intent.getStringExtra("releasedate");
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                long movieMlliseconds;
+                try {
+                    Date d = f.parse(movReleaseDate);
+                    movieMlliseconds = d.getTime();
+                } catch (Exception e) {
+                    movieMlliseconds = new Date().getTime();
+                }
 
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_RELEASE_DATE, movieMlliseconds);
-            movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_VOTE_AVG, intent.getStringExtra("voteaverage"));
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_RELEASE_DATE, movieMlliseconds);
+                movieValues.put(MovieContract.MovieFavoriteEntry.COLUMN_VOTE_AVG, intent.getStringExtra("voteaverage"));
 
-            getActivity().getContentResolver().insert(MovieContract.MovieFavoriteEntry.CONTENT_URI, movieValues);
+                getActivity().getContentResolver().insert(MovieContract.MovieFavoriteEntry.CONTENT_URI, movieValues);
 
-            //For movie trailers
+                //For movie trailers
             /*
                MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID + " TEXT NOT NULL, " +
                 MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
                 MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY + " TEXT NOT NULL, " +
 
              */
-            if (mMovieTrailers.length > 0) {
-                //Do the bulk insert
-                ContentValues[] trailerValuesAry = new ContentValues[mMovieTrailers.length];
+                if (mMovieTrailers != null && mMovieTrailers.length > 0) {
+                    //Do the bulk insert
+                    ContentValues[] trailerValuesAry = new ContentValues[mMovieTrailers.length];
 
-                for (int i = 0; i <  mMovieTrailers.length; ++i) {
-                    MovieTrailerItem tempTrailer = mMovieTrailers[i];
-                    ContentValues trailerValues = new ContentValues();
-                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID, tempTrailer.getTrailerID());
-                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID, tempTrailer.getMovieID());
-                    trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY, tempTrailer.getKey());
-                    trailerValuesAry[i] = trailerValues;
+                    for (int i = 0; i < mMovieTrailers.length; ++i) {
+                        MovieTrailerItem tempTrailer = mMovieTrailers[i];
+                        ContentValues trailerValues = new ContentValues();
+                        trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_ID, tempTrailer.getTrailerID());
+                        trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_FAV_MOVIE_ID, tempTrailer.getMovieID());
+                        trailerValues.put(MovieContract.MovieTrailerEntry.COLUMN_TRAILER_KEY, tempTrailer.getKey());
+                        trailerValuesAry[i] = trailerValues;
+                    }
+
+                    getActivity().getContentResolver().bulkInsert(MovieContract.MovieTrailerEntry.CONTENT_URI, trailerValuesAry);
                 }
 
-                getActivity().getContentResolver().bulkInsert(MovieContract.MovieTrailerEntry.CONTENT_URI, trailerValuesAry);
-            }
-
-            //For movie reviews
+                //For movie reviews
             /*
             MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID + " TEXT NOT NULL, " +
                 MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID + " INTEGER NOT NULL, " +
                 MovieContract.MovieReviewEntry.COLUMN_AUTHOR + " TEXT, " +
                 MovieContract.MovieReviewEntry.COLUMN_CONTENT + " TEXT, " +
              */
-            if (mMovieReviews.length > 0) {
-                ContentValues[] reviewValuesAry = new ContentValues[mMovieReviews.length];
-                for (int i = 0; i <  mMovieReviews.length; ++i) {
-                    MovieReviewItem tempReview = mMovieReviews[i];
-                    ContentValues reviewValues = new ContentValues();
-                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID, tempReview.getReviewID());
-                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID, tempReview.getMovieID());
-                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_AUTHOR, tempReview.getAuthor());
-                    reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_CONTENT, tempReview.getContent());
-                    reviewValuesAry[i] = reviewValues;
-                }
+                if (mMovieReviews != null && mMovieReviews.length > 0) {
+                    ContentValues[] reviewValuesAry = new ContentValues[mMovieReviews.length];
+                    for (int i = 0; i < mMovieReviews.length; ++i) {
+                        MovieReviewItem tempReview = mMovieReviews[i];
+                        ContentValues reviewValues = new ContentValues();
+                        reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID, tempReview.getReviewID());
+                        reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID, tempReview.getMovieID());
+                        reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_AUTHOR, tempReview.getAuthor());
+                        reviewValues.put(MovieContract.MovieReviewEntry.COLUMN_CONTENT, tempReview.getContent());
+                        reviewValuesAry[i] = reviewValues;
+                    }
 
-                getActivity().getContentResolver().bulkInsert(MovieContract.MovieReviewEntry.CONTENT_URI, reviewValuesAry);
+                    getActivity().getContentResolver().bulkInsert(MovieContract.MovieReviewEntry.CONTENT_URI, reviewValuesAry);
+                }
             }
+        }catch(Exception e) {
+            Log.e(LOG_TAG, "Error in addMovieFavorite", e);
         }
     }
 
