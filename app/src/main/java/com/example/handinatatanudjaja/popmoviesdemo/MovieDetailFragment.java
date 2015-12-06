@@ -243,6 +243,28 @@ public class MovieDetailFragment extends Fragment {
         movieTrailerLayout.setVisibility(View.VISIBLE);
     }
 
+    private void createReviewUI(MovieReviewItem[] pMovieReviewAry) {
+        LinearLayout movieReviewLayout = (LinearLayout) _rootView.findViewById(R.id.moviereviews);
+
+        for (MovieReviewItem pMovieReview : pMovieReviewAry) {
+            TextView txtViewContent = new TextView(currentContext);
+            txtViewContent.setText(pMovieReview.getContent());
+
+            TextView txtViewAuthor = new TextView(currentContext);
+            txtViewAuthor.setText("Reviewer: " + pMovieReview.getAuthor());
+            movieReviewLayout.addView(txtViewContent);
+            movieReviewLayout.addView(txtViewAuthor);
+
+            View reviewDivider = new View(currentContext);
+            movieReviewLayout.addView(reviewDivider);
+            reviewDivider.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
+            reviewDivider.getLayoutParams().height = 1;
+            reviewDivider.setBackgroundColor(getResources().getColor(R.color.primary_dark_material_dark));
+        }
+
+        movieReviewLayout.setVisibility(View.VISIBLE);
+    }
+
     private void loadReviews() {
         String[] mProjection = {MovieContract.MovieReviewEntry.COLUMN_AUTHOR,MovieContract.MovieReviewEntry.COLUMN_CONTENT,
                                 MovieContract.MovieReviewEntry.COLUMN_REVIEW_ID,MovieContract.MovieReviewEntry.COLUMN_FAV_MOVIE_ID};
@@ -297,15 +319,7 @@ public class MovieDetailFragment extends Fragment {
             }
         }
 
-        LinearLayout movieReviewLayout = (LinearLayout) _rootView.findViewById(R.id.moviereviews);
-
-        for (MovieReviewItem pMovieReview : movieReviewAry) {
-            TextView txtViewContent = new TextView(currentContext);
-            txtViewContent.setText(pMovieReview.getContent());
-            movieReviewLayout.addView(txtViewContent);
-        }
-
-        movieReviewLayout.setVisibility(View.VISIBLE);
+        createReviewUI(movieReviewAry);
     }
     //Look at FetchWeatherTask
     private void addMovieFavorite() {
@@ -520,15 +534,7 @@ public class MovieDetailFragment extends Fragment {
 
             mMovieReviews = pMovieReviewAry;
             if (pMovieReviewAry != null && pMovieReviewAry.length > 0) {
-                LinearLayout movieReviewLayout = (LinearLayout) _rootView.findViewById(R.id.moviereviews);
-
-                for (MovieReviewItem pMovieReview : pMovieReviewAry) {
-                    TextView txtViewContent = new TextView(currentContext);
-                    txtViewContent.setText(pMovieReview.getContent());
-                    movieReviewLayout.addView(txtViewContent);
-                }
-
-                movieReviewLayout.setVisibility(View.VISIBLE);
+                createReviewUI(pMovieReviewAry);
             }
         }
     }
