@@ -152,7 +152,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         movieGridView = (GridView) rootView.findViewById(R.id.gridview_movie);
 
         favImagesAdapter = new MovieFavoriteAdapter(getActivity(), null, 0);
-        //posterImagesAdapter = new ImageAdapter(container.getContext());
         posterImagesAdapter = new ImageAdapter(getActivity().getApplicationContext());
 
         boolean setAdapterAsPosterImage = true;

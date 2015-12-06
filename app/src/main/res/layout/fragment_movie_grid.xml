@@ -7,11 +7,11 @@
     <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:stretchMode="columnWidth"
         android:gravity="center"
         android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
         android:id="@+id/gridview_movie"
-        android:background="@color/material_deep_teal_200">
+        android:background="@color/background_material_dark">
 
     </GridView>
 </FrameLayout>

@@ -18,7 +18,7 @@
             android:padding="10dp"
             android:textSize="30dp"
             android:textColor="@android:color/white"
-            android:text="Test"
+            android:text="Please select a movie"
             />
 
         <ImageView android:id="@+id/moviepic"
@@ -38,7 +38,6 @@
             android:layout_toRightOf="@+id/moviepic"
             android:layout_marginLeft="15dp"
             android:textSize="25dp"
-            android:text="2015-05-15"
             />
 
         <TextView
@@ -50,7 +49,6 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="15dp"
             android:textSize="20dp"
-            android:text="10/10"
             />
 
         <Button
@@ -60,6 +58,7 @@
             android:layout_below="@+id/movievoteavg"
             android:layout_toRightOf="@id/moviepic"
             android:text="Favorite"
+            android:visibility="invisible"
             />
 
         <TextView
@@ -68,8 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:layout_marginLeft="5dp"
-            android:layout_below="@+id/moviepic"
-            android:text="overview"/>
+            android:layout_below="@+id/moviepic"/>
 
         <LinearLayout
             android:id = "@+id/movietrailers"
@@ -87,7 +85,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/movietrailers"
             android:orientation="vertical"
-
             android:showDividers="middle"
             android:visibility="visible">
 

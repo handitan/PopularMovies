@@ -89,6 +89,7 @@ public class MovieDetailFragment extends Fragment {
             }
 
             Button markFavoriteBtn = (Button) _rootView.findViewById(R.id.moviemarkfavorite);
+            markFavoriteBtn.setVisibility(View.VISIBLE);
             markFavoriteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
